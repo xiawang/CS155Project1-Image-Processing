@@ -32,15 +32,22 @@ Image* ip_blur_gaussian (Image* src, int size, double sigma)
     for (int x=0; x<size; x++){
         kernel[x] = new double[size];
     }
+    double sum = 0.0;
     for(int i=0;i<size;i++){
         for(int j=0; j<size; j++){
-            double e = exp(1.0);
             int span = size / 2;
             int a = i - span;
             int b = j - span;
-            double n = -(a*a + b*b) / (2 * sigma * sigma);
-            double g_value = pow(e, n);
-            kernel[i][j] = g_value / (size * size);
+            double pi = atan(1.0)*4;
+            double n = -(a*a + b*b) / (2.0 * sigma * sigma);
+            double g_value = (1 / sqrt(2.0 * pi * sigma * sigma)) * exp(n);
+            kernel[i][j] = g_value;
+            sum += kernel[i][j];
+        }
+    }
+    for (int i=0; i<size; i++) {
+        for (int j=0; j<size; j++) {
+            kernel[i][j] /= sum;
         }
     }
     return ip_convolve(src, size, kernel);
