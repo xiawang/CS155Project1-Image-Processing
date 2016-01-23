@@ -18,7 +18,6 @@ Image* ip_blur_box (Image* src, int size)
     for(int i=0;i<size;i++){
         for(int j=0; j<size; j++){
             kernel[i][j] = 1.0/(size*size);
-//            cout << "i-j-w: " << i << " - " << j << " - " << kernel[i][j] << endl;
         }
     }
     return ip_convolve(src, size, kernel);
@@ -29,8 +28,22 @@ Image* ip_blur_box (Image* src, int size)
  */
 Image* ip_blur_gaussian (Image* src, int size, double sigma)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    double **kernel = new double*[size];
+    for (int x=0; x<size; x++){
+        kernel[x] = new double[size];
+    }
+    for(int i=0;i<size;i++){
+        for(int j=0; j<size; j++){
+            double e = exp(1.0);
+            int span = size / 2;
+            int a = i - span;
+            int b = j - span;
+            double n = -(a*a + b*b) / (2 * sigma * sigma);
+            double g_value = pow(e, n);
+            kernel[i][j] = g_value / (size * size);
+        }
+    }
+    return ip_convolve(src, size, kernel);
 }
 
 
@@ -172,8 +185,16 @@ Image* ip_crop (Image* src, int x0, int y0, int x1, int y1)
  */
 Image* ip_edge_detect (Image* src)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    double **kernel = new double*[3];
+    for (int x=0; x<3; x++){
+        kernel[x] = new double[3];
+    }
+    for(int i=0;i<3;i++){
+        for(int j=0; j<3; j++){
+            kernel[i][j] = (i == 1 && j == 1) ? 8 : -1;
+        }
+    }
+    return ip_convolve(src, 3, kernel);
 }
 
 
