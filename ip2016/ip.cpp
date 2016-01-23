@@ -11,8 +11,17 @@
  */
 Image* ip_blur_box (Image* src, int size)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    double **kernel = new double*[size];
+    for (int x=0; x<size; x++){
+        kernel[x] = new double[size];
+    }
+    for(int i=0;i<size;i++){
+        for(int j=0; j<size; j++){
+            kernel[i][j] = 1.0/(size*size);
+//            cout << "i-j-w: " << i << " - " << j << " - " << kernel[i][j] << endl;
+        }
+    }
+    return ip_convolve(src, size, kernel);
 }
 
 /*
@@ -100,8 +109,40 @@ Image* ip_contrast (Image* src, double alpha)
  */
 Image* ip_convolve (Image* src, int size, double** kernel)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* output = new Image(width,height);
+    int hspan = (size-1)/2;
+    int wspan = (size-1)/2;
+//    cout << "kernel height: " << sizeof(kernel[0]) << endl;
+//    cout << "kernel width: " << sizeof(kernel) << endl;
+    for (int w=0; w<width;w++){
+        for (int h=0; h<height; h++){
+            double r = 0; double g = 0; double b = 0;
+            for(int dw=-wspan; dw<wspan; dw++){
+                for(int dh=-hspan; dh<hspan; dh++){
+                    int ww = w + dw; int hh = h + dh;
+                    if(ww>=0 && ww<width & hh>=0 & hh<height){
+//                        cout << "ww-hh" << ww << " - " << hh << endl;
+                        double weight = kernel[dw+wspan][dh+hspan];
+//                        cout << "kernel: " << dw+wspan << " - " << dh+hspan << endl;
+//                        cout << "weight: " << weight << endl;
+                        double rr = src->getPixel(ww,hh,0);
+                        double gg = src->getPixel(ww,hh,1);
+                        double bb = src->getPixel(ww,hh,2);
+                        r = r + weight * rr;
+                        g = g + weight * gg;
+                        b = b + weight * bb;
+                    }
+                }
+            }
+            output->setPixel_(w,h,0,r);
+            output->setPixel_(w,h,1,g);
+            output->setPixel_(w,h,2,b);
+//            cout << "w-h" << w << " - " << h << endl;
+        }
+    }
+    return output;
 }
 
 
