@@ -81,20 +81,16 @@ Image* ip_contrast (Image* src, double alpha)
 {
     int width = src->getWidth();
     int height = src->getHeight();
+    Image* grey = new Image(width,height);
     Image* dest = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
-            double r = src->getPixel(w, h, 0);
-            double g = src->getPixel(w, h, 1);
-            double b = src->getPixel(w, h, 2);
-            double ar = r*alpha;
-            double ag = g*alpha;
-            double ab = b*alpha;
-            dest->setPixel_(w, h, 0, ar);
-            dest->setPixel_(w, h, 1, ag);
-            dest->setPixel_(w, h, 2, ab);
+            grey->setPixel_(w, h, 0, 0.5);
+            grey->setPixel_(w, h, 1, 0.5);
+            grey->setPixel_(w, h, 2, 0.5);
         }
     }
+    dest = ip_interpolate (src, grey, alpha);
     return dest;
 }
 
@@ -245,19 +241,15 @@ Image* ip_invert (Image* src)
     int width = src->getWidth();
     int height = src->getHeight();
     Image* dest = new Image(width,height);
+    Image* grey = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
-            double r = src->getPixel(w, h, 0);
-            double g = src->getPixel(w, h, 1);
-            double b = src->getPixel(w, h, 2);
-            double rp = 1-r;
-            double gp = 1-g;
-            double bp = 1-b;
-            dest->setPixel(w, h, 0, rp);
-            dest->setPixel(w, h, 1, gp);
-            dest->setPixel(w, h, 2, bp);
+            grey->setPixel_(w, h, 0, 0.5);
+            grey->setPixel_(w, h, 1, 0.5);
+            grey->setPixel_(w, h, 2, 0.5);
         }
     }
+    dest = ip_interpolate (src, grey, -1);
     return dest;
 }
 
@@ -358,8 +350,12 @@ Image* ip_rotate (Image* src, double theta, int x, int y, int mode,
  */
 Image* ip_saturate (Image* src, double alpha)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* greyscale = ip_grey(src);
+    Image* dest = new Image(width,height);
+    dest = ip_interpolate (src, greyscale, alpha);
+    return dest;
 }
 
 
