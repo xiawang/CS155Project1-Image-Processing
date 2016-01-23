@@ -49,9 +49,9 @@ Image* ip_brighten (Image* src, double alpha)
             double r = src->getPixel(w, h, 0);
             double g = src->getPixel(w, h, 1);
             double b = src->getPixel(w, h, 2);
-            double ar = r+alpha;
-            double ag = g+alpha;
-            double ab = b+alpha;
+            double ar = r*alpha;
+            double ag = g*alpha;
+            double ab = b*alpha;
             dest->setPixel_(w, h, 0, ar);
             dest->setPixel_(w, h, 1, ag);
             dest->setPixel_(w, h, 2, ab);
