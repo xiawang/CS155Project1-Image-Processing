@@ -43,20 +43,16 @@ Image* ip_brighten (Image* src, double alpha)
 {
     int width = src->getWidth();
     int height = src->getHeight();
+    Image* black = new Image(width,height);
     Image* dest = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
-            double r = src->getPixel(w, h, 0);
-            double g = src->getPixel(w, h, 1);
-            double b = src->getPixel(w, h, 2);
-            double ar = r*alpha;
-            double ag = g*alpha;
-            double ab = b*alpha;
-            dest->setPixel_(w, h, 0, ar);
-            dest->setPixel_(w, h, 1, ag);
-            dest->setPixel_(w, h, 2, ab);
+            black->setPixel_(w, h, 0, 0);
+            black->setPixel_(w, h, 1, 0);
+            black->setPixel_(w, h, 2, 0);
         }
     }
+    dest = ip_interpolate (src, black, alpha);
     return dest;
 }
 
@@ -219,8 +215,26 @@ Image* ip_image_shift(Image* src, int dx, int dy)
  */
 Image* ip_interpolate (Image* src1, Image* src2, double alpha)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src1->getWidth();
+    int height = src2->getHeight();
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            double r1 = src1->getPixel(w, h, 0);
+            double g1 = src1->getPixel(w, h, 1);
+            double b1 = src1->getPixel(w, h, 2);
+            double r2 = src2->getPixel(w, h, 0);
+            double g2 = src2->getPixel(w, h, 1);
+            double b2 = src2->getPixel(w, h, 2);
+            double rd = alpha*r1 + (1-alpha)*r2;
+            double gd = alpha*g1 + (1-alpha)*g2;
+            double bd = alpha*b1 + (1-alpha)*b2;
+            dest->setPixel_(w, h, 0, rd);
+            dest->setPixel_(w, h, 1, gd);
+            dest->setPixel_(w, h, 2, bd);
+        }
+    }
+    return dest;
 }
 
 /*
