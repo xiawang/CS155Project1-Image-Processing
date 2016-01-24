@@ -60,7 +60,7 @@ Image* ip_blur_gaussian (Image* src, int size, double sigma)
 Image* ip_blur_triangle (Image* src, int size)
 {
 	
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter is no longer in the assignment.\n";
     return NULL;
 }
 
