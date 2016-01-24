@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
 
 
 
@@ -327,8 +328,36 @@ Image* ip_invert (Image* src)
  */
 Image* ip_median (Image* src)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width-2; w++){
+        for (int h=0;h<height-2; h++){
+            // construct vector for sorting
+            vector<double> vec_r;
+            vector<double> vec_g;
+            vector<double> vec_b;
+            for (int i=0; i<3; i++) {
+                for (int j=0; j<3; j++) {
+                    // get r,g,b values
+                    double r = src->getPixel(w+i, h+j, 0);
+                    double g = src->getPixel(w+i, h+j, 1);
+                    double b = src->getPixel(w+i, h+j, 2);
+                    vec_r.push_back(r);
+                    vec_g.push_back(g);
+                    vec_b.push_back(b);
+                }
+            }
+            // sorting r,g,b vectors
+            sort(vec_r.begin(), vec_r.end());
+            sort(vec_g.begin(), vec_g.end());
+            sort(vec_b.begin(), vec_b.end());
+            dest->setPixel(w, h, 0, vec_r[4]);
+            dest->setPixel(w, h, 1, vec_g[4]);
+            dest->setPixel(w, h, 2, vec_b[4]);
+        }
+    }
+    return dest;
 }
 
 /* misc
