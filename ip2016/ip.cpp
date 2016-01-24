@@ -300,12 +300,12 @@ Image* ip_image_shift(Image* src, int dx, int dy)
         for (int h=0;h<height; h++){
             int nw = (w+dx) % width;
             int nh = (h+dy) % height;
-            double r = src->getPixel(nw, nh, 0);
-            double g = src->getPixel(nw, nh, 1);
-            double b = src->getPixel(nw, nh, 2);
-            dest->setPixel(w, h, 0, r);
-            dest->setPixel(w, h, 1, g);
-            dest->setPixel(w, h, 2, b);
+            double r = src->getPixel(w, h, 0);
+            double g = src->getPixel(w, h, 1);
+            double b = src->getPixel(w, h, 2);
+            dest->setPixel(nw, nh, 0, r);
+            dest->setPixel(nw, nh, 1, g);
+            dest->setPixel(nw, nh, 2, b);
         }
     }
     return dest;
