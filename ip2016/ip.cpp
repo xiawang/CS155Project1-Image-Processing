@@ -173,8 +173,29 @@ Image* ip_convolve (Image* src, int size, double** kernel)
  */
 Image* ip_composite(Image* src1, Image* src2, Image* mask)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src1->getWidth();
+    int height = src1->getHeight();
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            double r1 = src1->getPixel(w, h, 0);
+            double g1 = src1->getPixel(w, h, 1);
+            double b1 = src1->getPixel(w, h, 2);
+            double r2 = src2->getPixel(w, h, 0);
+            double g2 = src2->getPixel(w, h, 1);
+            double b2 = src2->getPixel(w, h, 2);
+            double alpha_r = mask->getPixel(w, h, 0);
+            double alpha_g = mask->getPixel(w, h, 1);
+            double alpha_b = mask->getPixel(w, h, 2);
+            double rd = alpha_r*r1 + (1-alpha_r)*r2;
+            double gd = alpha_g*g1 + (1-alpha_g)*g2;
+            double bd = alpha_b*b1 + (1-alpha_b)*b2;
+            dest->setPixel_(w, h, 0, rd);
+            dest->setPixel_(w, h, 1, gd);
+            dest->setPixel_(w, h, 2, bd);
+        }
+    }
+    return dest;
 }
 
 
@@ -183,7 +204,7 @@ Image* ip_composite(Image* src1, Image* src2, Image* mask)
  */
 Image* ip_crop (Image* src, int x0, int y0, int x1, int y1)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 2.\n";
     return NULL;
 }
 
@@ -235,7 +256,7 @@ Image* ip_extract (Image* src, int channel)
  */
 Image* ip_fun_warp (Image* src,int samplingMethod)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 3.\n";
     return NULL;
 }
 
@@ -272,8 +293,22 @@ Image* ip_grey (Image* src)
 */
 Image* ip_image_shift(Image* src, int dx, int dy)
 {
-    cerr << "This filter has not been implemented.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            int nw = (w+dx) % width;
+            int nh = (h+dy) % height;
+            double r = src->getPixel(nw, nh, 0);
+            double g = src->getPixel(nw, nh, 1);
+            double b = src->getPixel(nw, nh, 2);
+            dest->setPixel(w, h, 0, r);
+            dest->setPixel(w, h, 1, g);
+            dest->setPixel(w, h, 2, b);
+        }
+    }
+    return dest;
 }
 
 /*
@@ -282,7 +317,7 @@ Image* ip_image_shift(Image* src, int dx, int dy)
 Image* ip_interpolate (Image* src1, Image* src2, double alpha)
 {
     int width = src1->getWidth();
-    int height = src2->getHeight();
+    int height = src1->getHeight();
     Image* dest = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
@@ -364,7 +399,7 @@ Image* ip_median (Image* src)
 */
 Image* ip_misc(Image* src) 
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 4.\n";
     return NULL;
 }
 
@@ -374,7 +409,7 @@ Image* ip_misc(Image* src)
  */
 Image* ip_quantize_simple (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 5.\n";
     return NULL;
 }
 
@@ -385,7 +420,7 @@ Image* ip_quantize_simple (Image* src, int bitsPerChannel)
  */
 Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 6.\n";
     return NULL;
 }
 
@@ -396,7 +431,7 @@ Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
  */
 Image* ip_quantize_fs (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 7.\n";
     return NULL;
 }
 
@@ -408,7 +443,7 @@ Image* ip_quantize_fs (Image* src, int bitsPerChannel)
 
 Pixel ip_resample_nearest(Image* src, double x, double y)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 8.\n";
     return Pixel(0,0,0);
 }
 
@@ -419,7 +454,7 @@ Pixel ip_resample_nearest(Image* src, double x, double y)
 Pixel ip_resample_bilinear(Image* src, double x, double y)
 {
 
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 9.\n";
     return Pixel(0,0,0);
 }
 
@@ -428,7 +463,7 @@ Pixel ip_resample_bilinear(Image* src, double x, double y)
  */
 Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigma) 
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 10.\n";
     return Pixel(0,0,0);
 }
 
@@ -439,7 +474,7 @@ Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigm
 Image* ip_rotate (Image* src, double theta, int x, int y, int mode, 
                   int size, double sigma)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 11.\n";
     return NULL;
 }
 
@@ -463,7 +498,7 @@ Image* ip_saturate (Image* src, double alpha)
 Image* ip_scale (Image* src, double xFac, double yFac, int mode, 
                  int size, double sigma)
 {
-    cerr << "This filter has not been implemented.\n";
+    cerr << "This filter has not been implemented 12.\n";
     return NULL;
 }
 
