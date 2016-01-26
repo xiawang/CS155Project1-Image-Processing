@@ -399,8 +399,27 @@ Image* ip_median (Image* src)
 */
 Image* ip_misc(Image* src) 
 {
-    cerr << "This filter has not been implemented 4.\n";
-    return NULL;
+    int intensity = 0;
+    cout << "Please input the intensity of the wind: " << endl;
+    cin >> intensity;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* newImage = new Image(width,height);
+    for (int j = 0; j<height; j++){
+        int max = j + intensity;
+        int min = j - intensity;
+        int randj = rand()%(max-min + 1) + min;
+        if (randj<0){
+            randj = 0;
+        }else if(randj>=height){
+            randj = height - 1;
+        }
+        for (int i=0; i<width; i++){
+            Pixel pixel = src->getPixel(i,randj);
+            newImage->setPixel_(i, j, pixel);
+        }
+    }
+    return newImage;
 }
 
 
