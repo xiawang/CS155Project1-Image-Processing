@@ -395,8 +395,10 @@ Image* ip_median (Image* src)
     return dest;
 }
 
-/* misc
-*/
+/* 
+ * misc - We implemented as the "wind effect"
+ *        This method requires the input for intensity
+ */
 Image* ip_misc(Image* src) 
 {
     int intensity = 0;
