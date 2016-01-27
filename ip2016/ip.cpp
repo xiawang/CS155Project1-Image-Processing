@@ -487,11 +487,31 @@ Pixel ip_resample_nearest(Image* src, double x, double y)
  * bilinear resample
  */
 
+Pixel takeWeightedAverage(Pixel pixel1, Pixel pixel2, double weight1, double weight2){
+    double r1 = pixel1.getColor(0);
+    double g1 = pixel1.getColor(1);
+    double b1 = pixel1.getColor(2);
+    double r2 = pixel2.getColor(0);
+    double g2 = pixel2.getColor(1);
+    double b2 = pixel2.getColor(2);
+    double r = r1*weight1 + r2*weight2;
+    double g = g1*weight1 + g2*weight2;
+    double b = b1*weight1 + b2*weight2;
+    return Pixel(r,g,b);
+}
+
 Pixel ip_resample_bilinear(Image* src, double x, double y)
 {
-
-    cerr << "This filter has not been implemented 9.\n";
-    return Pixel(0,0,0);
+    double x1 = floor(x); double x2 = x1+1;
+    double y1 = floor(y); double y2 = y1+1;
+    Pixel upleft = src->getPixel(x1, y1);
+    Pixel downleft = src->getPixel(x1, y2);
+    Pixel upright = src->getPixel(x2, y1);
+    Pixel downright = src->getPixel(x2, y2);
+    Pixel average1 = takeWeightedAverage(upleft, upright, x2-x, x-x1);
+    Pixel average2 = takeWeightedAverage(downleft, downright, x2-x, x-x1);
+    Pixel average = takeWeightedAverage(average1, average2, y2-y, y-y1);
+    return average;
 }
 
 /*
