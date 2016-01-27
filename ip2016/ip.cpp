@@ -459,7 +459,6 @@ Pixel ip_resample_nearest(Image* src, double x, double y)
 {
     double x_floor = floor(x);
     double y_floor = floor(y);
-    cout << "x: " << x << " - y: " << y << endl;
     double dist_1 = sqrt(pow((x-x_floor), 2.0) + pow((y-y_floor), 2.0));
     double dist_2 = sqrt(pow((x-x_floor-1), 2.0) + pow((y-y_floor), 2.0));
     double dist_3 = sqrt(pow((x-x_floor), 2.0) + pow((y-y_floor-1), 2.0));
@@ -472,13 +471,13 @@ Pixel ip_resample_nearest(Image* src, double x, double y)
     double index = min_element( vec.begin(), vec.end() ) - vec.begin();
     Pixel my_pix;
     if (index == 0) {
-        my_pix = src->getPixel(x_floor, y_floor);
+        my_pix = src->getPixel_(x_floor, y_floor);
     } else if (index == 1) {
-        my_pix = src->getPixel(x_floor+1, y_floor);
+        my_pix = src->getPixel_(x_floor+1, y_floor);
     } else if (index == 2) {
-        my_pix = src->getPixel(x_floor, y_floor+1);
+        my_pix = src->getPixel_(x_floor, y_floor+1);
     } else {
-        my_pix = src->getPixel(x_floor+1, y_floor+1);
+        my_pix = src->getPixel_(x_floor+1, y_floor+1);
     }
     return my_pix;
 }
@@ -550,8 +549,40 @@ Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigm
 Image* ip_rotate (Image* src, double theta, int x, int y, int mode, 
                   int size, double sigma)
 {
-//    cerr << "This filter has not been implemented 11.\n";
-    return NULL;
+    float sin_val = sin(theta * M_PI / 180);
+    float cos_val = cos(theta * M_PI / 180);
+    
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    // initialize as all black
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            int new_x = w - x;
+            int new_y = h - y;
+            // rotate point
+            float rot_x = new_x * cos_val - new_y * sin_val;
+            float rot_y = new_x * sin_val + new_y * cos_val;
+            rot_x += x;
+            rot_y += y;
+            // resemble
+            Pixel pix;
+            if (rot_x < 0 || rot_x >= width || rot_y < 0 || rot_y >= height) {
+                pix = Pixel(0, 0, 0);
+            } else {
+                if (mode == I_NEAREST) {
+                    pix = ip_resample_nearest(src, rot_x, rot_y);
+                } else if (mode == I_BILINEAR) {
+                    pix = ip_resample_bilinear(src, rot_x, rot_y);
+                } else {
+                    pix = ip_resample_gaussian(src, rot_x, rot_y, size, sigma);
+                }
+            }
+            
+            dest->setPixel_(w, h, pix);
+        }
+    }
+    return dest;
 }
 
 /*
