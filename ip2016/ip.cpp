@@ -135,32 +135,25 @@ Image* ip_convolve (Image* src, int size, double** kernel)
     Image* output = new Image(width,height);
     int hspan = (size-1)/2;
     int wspan = (size-1)/2;
-//    cout << "kernel height: " << sizeof(kernel[0]) << endl;
-//    cout << "kernel width: " << sizeof(kernel) << endl;
+    
     for (int w=0; w<width;w++){
         for (int h=0; h<height; h++){
             double r = 0; double g = 0; double b = 0;
-            for(int dw=-wspan; dw<wspan; dw++){
+            for(int dw=-wspan; dw<=wspan; dw++){
                 for(int dh=-hspan; dh<=hspan; dh++){
                     int ww = w + dw; int hh = h + dh;
-                    if(ww>=0 && ww<width & hh>=0 & hh<height){
-//                        cout << "ww-hh" << ww << " - " << hh << endl;
                         double weight = kernel[dw+wspan][dh+hspan];
-//                        cout << "kernel: " << dw+wspan << " - " << dh+hspan << endl;
-//                        cout << "weight: " << weight << endl;
-                        double rr = src->getPixel(ww,hh,0);
-                        double gg = src->getPixel(ww,hh,1);
-                        double bb = src->getPixel(ww,hh,2);
+                        double rr = src->getPixel_(ww,hh,0);
+                        double gg = src->getPixel_(ww,hh,1);
+                        double bb = src->getPixel_(ww,hh,2);
                         r = r + weight * rr;
                         g = g + weight * gg;
                         b = b + weight * bb;
-                    }
                 }
             }
             output->setPixel_(w,h,0,r);
             output->setPixel_(w,h,1,g);
             output->setPixel_(w,h,2,b);
-//            cout << "w-h" << w << " - " << h << endl;
         }
     }
     return output;
@@ -464,8 +457,30 @@ Image* ip_quantize_fs (Image* src, int bitsPerChannel)
 
 Pixel ip_resample_nearest(Image* src, double x, double y)
 {
-    cerr << "This filter has not been implemented 8.\n";
-    return Pixel(0,0,0);
+    double x_floor = floor(x);
+    double y_floor = floor(y);
+    cout << "x: " << x << " - y: " << y << endl;
+    double dist_1 = sqrt(pow((x-x_floor), 2.0) + pow((y-y_floor), 2.0));
+    double dist_2 = sqrt(pow((x-x_floor-1), 2.0) + pow((y-y_floor), 2.0));
+    double dist_3 = sqrt(pow((x-x_floor), 2.0) + pow((y-y_floor-1), 2.0));
+    double dist_4 = sqrt(pow((x-x_floor-1), 2.0) + pow((y-y_floor-1), 2.0));
+    vector<double> vec;
+    vec.push_back(dist_1);
+    vec.push_back(dist_2);
+    vec.push_back(dist_3);
+    vec.push_back(dist_4);
+    double index = min_element( vec.begin(), vec.end() ) - vec.begin();
+    Pixel my_pix;
+    if (index == 0) {
+        my_pix = src->getPixel(x_floor, y_floor);
+    } else if (index == 1) {
+        my_pix = src->getPixel(x_floor+1, y_floor);
+    } else if (index == 2) {
+        my_pix = src->getPixel(x_floor, y_floor+1);
+    } else {
+        my_pix = src->getPixel(x_floor+1, y_floor+1);
+    }
+    return my_pix;
 }
 
 /*
@@ -495,7 +510,7 @@ Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigm
 Image* ip_rotate (Image* src, double theta, int x, int y, int mode, 
                   int size, double sigma)
 {
-    cerr << "This filter has not been implemented 11.\n";
+//    cerr << "This filter has not been implemented 11.\n";
     return NULL;
 }
 
