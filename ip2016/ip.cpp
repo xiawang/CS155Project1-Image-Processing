@@ -141,7 +141,7 @@ Image* ip_convolve (Image* src, int size, double** kernel)
         for (int h=0; h<height; h++){
             double r = 0; double g = 0; double b = 0;
             for(int dw=-wspan; dw<wspan; dw++){
-                for(int dh=-hspan; dh<hspan; dh++){
+                for(int dh=-hspan; dh<=hspan; dh++){
                     int ww = w + dw; int hh = h + dh;
                     if(ww>=0 && ww<width & hh>=0 & hh<height){
 //                        cout << "ww-hh" << ww << " - " << hh << endl;
