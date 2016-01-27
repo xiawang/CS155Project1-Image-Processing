@@ -502,8 +502,8 @@ Pixel takeWeightedAverage(Pixel pixel1, Pixel pixel2, double weight1, double wei
 
 Pixel ip_resample_bilinear(Image* src, double x, double y)
 {
-    double x1 = floor(x); double x2 = x1+1;
-    double y1 = floor(y); double y2 = y1+1;
+    int x1 = floor(x); int x2 = x1+1;
+    int y1 = floor(y); int y2 = y1+1;
     Pixel upleft = src->getPixel(x1, y1);
     Pixel downleft = src->getPixel(x1, y2);
     Pixel upright = src->getPixel(x2, y1);
@@ -519,8 +519,28 @@ Pixel ip_resample_bilinear(Image* src, double x, double y)
  */
 Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigma) 
 {
-    cerr << "This filter has not been implemented 10.\n";
-    return Pixel(0,0,0);
+    double **kernel = new double*[size];
+    for (int x=0; x<3; x++){
+        kernel[x] = new double[size];
+    }
+    int x0 = floor(x)-(size/2-1); int y0 = floor(y)-(size/2-1);
+    double sum = 0;
+    for(int i=x0; i<x0+size; i++){
+        for(int j=y0; j<y0+size;j++){
+            kernel[i][j] = exp(-(pow(x-i,2)+pow(y-j,2))/(2*pow(sigma,2)));
+            sum = sum + kernel[i][j];
+        }
+    }
+    double r = 0; double g = 0; double b = 0;
+    for(int i=x0; i<x0+size; i++){
+        for(int j=y0; j<y0+size;j++){
+            double weight = kernel[i][j]/sum;
+            r = r + weight*(src->getPixel(i, j, 0));
+            g = g + weight*(src->getPixel(i, j, 1));
+            b = b + weight*(src->getPixel(i, j, 2));
+        }
+    }
+    return Pixel(r,g,b);
 }
 
 
