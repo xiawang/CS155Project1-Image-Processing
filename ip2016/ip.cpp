@@ -499,10 +499,23 @@ Pixel takeWeightedAverage(Pixel pixel1, Pixel pixel2, double weight1, double wei
     return Pixel(r,g,b);
 }
 
-Pixel ip_resample_bilinear(Image* src, double x, double y)
-{
-    int x1 = floor(x); int x2 = x1+1;
-    int y1 = floor(y); int y2 = y1+1;
+Pixel ip_resample_bilinear(Image* src, double x, double y){
+    int width = src->getWidth();
+    int height = src->getHeight();
+    int x1 = floor(x);
+    if(x1<0){
+        x1 = 0;
+    }else if(x1>width-2){
+        x1 = width-2;
+    }
+    int x2 = x1+1;
+    int y1 = floor(y);
+    if(y1<0){
+        y1 = 0;
+    }else if(y1>height-2){
+        y1 = height-2;
+    }
+    int y2 = y1+1;
     Pixel upleft = src->getPixel(x1, y1);
     Pixel downleft = src->getPixel(x1, y2);
     Pixel upright = src->getPixel(x2, y1);
@@ -516,8 +529,9 @@ Pixel ip_resample_bilinear(Image* src, double x, double y)
 /*
  * gausian sample
  */
-Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigma) 
-{
+Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigma) {
+    int width = src->getWidth();
+    int height = src->getHeight();
     double **kernel = new double*[size];
     for (int x=0; x<3; x++){
         kernel[x] = new double[size];
@@ -526,17 +540,19 @@ Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigm
     double sum = 0;
     for(int i=x0; i<x0+size; i++){
         for(int j=y0; j<y0+size;j++){
-            kernel[i][j] = exp(-(pow(x-i,2)+pow(y-j,2))/(2*pow(sigma,2)));
-            sum = sum + kernel[i][j];
+            kernel[i-x0][j-y0] = exp(-(pow(x-i,2)+pow(y-j,2))/(2*pow(sigma,2)));
+            sum = sum + kernel[i-x0][j-y0];
         }
     }
     double r = 0; double g = 0; double b = 0;
     for(int i=x0; i<x0+size; i++){
         for(int j=y0; j<y0+size;j++){
-            double weight = kernel[i][j]/sum;
-            r = r + weight*(src->getPixel(i, j, 0));
-            g = g + weight*(src->getPixel(i, j, 1));
-            b = b + weight*(src->getPixel(i, j, 2));
+            if(i>0 && i<width && j>0 && j<height){
+                double weight = kernel[i-x0][j-y0]/sum;
+                r = r + weight*(src->getPixel(i, j, 0));
+                g = g + weight*(src->getPixel(i, j, 1));
+                b = b + weight*(src->getPixel(i, j, 2));
+            }
         }
     }
     return Pixel(r,g,b);
