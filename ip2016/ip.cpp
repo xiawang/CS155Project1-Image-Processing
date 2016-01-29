@@ -249,8 +249,65 @@ Image* ip_extract (Image* src, int channel)
  */
 Image* ip_fun_warp (Image* src,int samplingMethod)
 {
-    cerr << "This filter has not been implemented 3.\n";
-    return NULL;
+    int x = 0;
+    int y = 0;
+    int r = 0;
+    int w = 0;
+    float t = 0;
+    float s = 0;
+    int size = 0;
+    double sigma = 0.0;
+    cout << "Ripple effect x value: " << endl;
+    cin >> x;
+    cout << "Ripple effect y value: " << endl;
+    cin >> y;
+    cout << "Ripple effect radius value: " << endl;
+    cin >> r;
+    cout << "Ripple effect wavelength value: " << endl;
+    cin >> w;
+    cout << "Ripple effect trainwidth value: " << endl;
+    cin >> t;
+    cout << "Ripple effect superphase value: " << endl;
+    cin >> s;
+    cout << "Size: " << endl;
+    cin >> size;
+    cout << "sigma: " << endl;
+    cin >> sigma;
+    
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    // initialize as all black
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            int new_x = 0;
+            int new_y = 0;
+            double dx = w - x;
+            double dy = h - y;
+            double rr = (sqrt(dx*dx+dy*dy)-r)/w ;
+            double k = rr - (1-s)*r/w ;
+            double a = 1 / (1.0 + (rr/t)*(rr/t));
+            double depth = a * sin(k*2*M_PI);
+            new_x = w + depth*20;
+            new_y = h + depth*20;
+            // resemble
+            Pixel pix;
+            if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height) {
+                pix = Pixel(0, 0, 0);
+            } else {
+                if (samplingMethod == I_NEAREST) {
+                    pix = ip_resample_nearest(src, new_x, new_y);
+                } else if (samplingMethod == I_BILINEAR) {
+                    pix = ip_resample_bilinear(src, new_x, new_y);
+                } else {
+                    pix = ip_resample_gaussian(src, new_x, new_y, size, sigma);
+                }
+            }
+            
+            dest->setPixel_(w, h, pix);
+        }
+    }
+    return dest;
 }
 
 
@@ -621,8 +678,33 @@ Image* ip_saturate (Image* src, double alpha)
 Image* ip_scale (Image* src, double xFac, double yFac, int mode, 
                  int size, double sigma)
 {
-    cerr << "This filter has not been implemented 12.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width*xFac,height*yFac);
+    // initialize as all black
+    for (int w=0; w<width*xFac; w++){
+        for (int h=0;h<height*yFac; h++){
+            // rescaling
+            int new_x = w * 1.0 / xFac;
+            int new_y = h * 1.0 / yFac;
+            // resemble
+            Pixel pix;
+            if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height) {
+                pix = Pixel(0, 0, 0);
+            } else {
+                if (mode == I_NEAREST) {
+                    pix = ip_resample_nearest(src, new_x, new_y);
+                } else if (mode == I_BILINEAR) {
+                    pix = ip_resample_bilinear(src, new_x, new_y);
+                } else {
+                    pix = ip_resample_gaussian(src, new_x, new_y, size, sigma);
+                }
+            }
+            
+            dest->setPixel_(w, h, pix);
+        }
+    }
+    return dest;
 }
 
 /*
