@@ -621,8 +621,27 @@ Image* ip_saturate (Image* src, double alpha)
 Image* ip_scale (Image* src, double xFac, double yFac, int mode, 
                  int size, double sigma)
 {
-    cerr << "This filter has not been implemented 12.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    int newWidth = width * xFac;
+    int newHeight = height * yFac;
+    Image* dest = new Image(newWidth,newHeight);
+    for(int w=0; w<newWidth; w++){
+        for(int h=0; h<newHeight;h++){
+            double xx = w/(double)xFac;
+            double yy = h/(double)yFac;
+            Pixel pix;
+            if (mode == I_NEAREST) {
+                pix = ip_resample_nearest(src, xx, yy);
+            } else if (mode == I_BILINEAR) {
+                pix = ip_resample_bilinear(src, xx, yy);
+            } else {
+                pix = ip_resample_gaussian(src, xx, yy, size, sigma);
+            }
+            dest->setPixel(w,h,pix);
+        }
+    }
+    return dest;
 }
 
 /*
