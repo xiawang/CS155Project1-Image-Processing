@@ -536,8 +536,38 @@ double blockRound(double number, int bit){
 
 Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented 6.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    int levels = 4*(-1+pow(2,bitsPerChannel))+1;
+    double grid = 1.0/double(levels-1);
+    double offset0 = grid*3.0/8.0;
+    double offset1 = grid*1.0/8.0;
+    double offset2 = -grid*1.0/8.0;
+    double offset3 = -grid*3.0/8.0;
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            double r = src->getPixel(w, h, 0);
+            double g = src->getPixel(w, h, 1);
+            double b = src->getPixel(w, h, 2);
+            if (w%2==0 && h%2 ==0){
+                r += offset0; g += offset0; b += offset0;
+            }else if(w%2==1 && h%2 ==0){
+                r += offset1; g += offset1; b += offset1;
+            }else if(w%2==1 && h%2 ==1){
+                r += offset2; g += offset2; b += offset2;
+            }else{
+                r += offset3; g += offset3; b += offset3;
+            }
+            double rp = bitRound(r, bitsPerChannel);
+            double gp = bitRound(g, bitsPerChannel);
+            double bp = bitRound(b, bitsPerChannel);
+            dest->setPixel_(w, h, 0, rp);
+            dest->setPixel_(w, h, 1, gp);
+            dest->setPixel_(w, h, 2, bp);
+        }
+    }
+    return dest;
 }
 
 
