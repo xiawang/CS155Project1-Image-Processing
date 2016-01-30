@@ -249,8 +249,65 @@ Image* ip_extract (Image* src, int channel)
  */
 Image* ip_fun_warp (Image* src,int samplingMethod)
 {
-    cerr << "This filter has not been implemented 3.\n";
-    return NULL;
+    int x = 0;
+    int y = 0;
+    int r = 0;
+    int w = 0;
+    float t = 0;
+    float s = 0;
+    int size = 0;
+    double sigma = 0.0;
+    cout << "Ripple effect x value: " << endl;
+    cin >> x;
+    cout << "Ripple effect y value: " << endl;
+    cin >> y;
+    cout << "Ripple effect radius value: " << endl;
+    cin >> r;
+    cout << "Ripple effect wavelength value: " << endl;
+    cin >> w;
+    cout << "Ripple effect trainwidth value: " << endl;
+    cin >> t;
+    cout << "Ripple effect superphase value: " << endl;
+    cin >> s;
+    cout << "Size: " << endl;
+    cin >> size;
+    cout << "sigma: " << endl;
+    cin >> sigma;
+    
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    // initialize as all black
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            int new_x = 0;
+            int new_y = 0;
+            double dx = w - x;
+            double dy = h - y;
+            double rr = (sqrt(dx*dx+dy*dy)-r)/w ;
+            double k = rr - (1-s)*r/w ;
+            double a = 1 / (1.0 + (rr/t)*(rr/t));
+            double depth = a * sin(k*2*M_PI);
+            new_x = w + depth*20;
+            new_y = h + depth*20;
+            // resemble
+            Pixel pix;
+            if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height) {
+                pix = Pixel(0, 0, 0);
+            } else {
+                if (samplingMethod == I_NEAREST) {
+                    pix = ip_resample_nearest(src, new_x, new_y);
+                } else if (samplingMethod == I_BILINEAR) {
+                    pix = ip_resample_bilinear(src, new_x, new_y);
+                } else {
+                    pix = ip_resample_gaussian(src, new_x, new_y, size, sigma);
+                }
+            }
+            
+            dest->setPixel_(w, h, pix);
+        }
+    }
+    return dest;
 }
 
 
@@ -421,10 +478,40 @@ Image* ip_misc(Image* src)
 /*
  * round each pixel to the nearest value in the new number of bits
  */
+
+//round a number to the closest number that can be represented by bit values.
+double bitRound(double number, int bit){
+    int levels = pow(2,bit);
+    double grid = 1.0/double(levels-1);
+    double val;
+    for (double cur=0.0; cur<=1.0; cur+=grid){
+        if (cur >= 1.0 || fabs(cur-number)<fabs(cur+grid-number)) {
+            val = cur;
+            break;
+        }
+    }
+    return val;
+}
+
 Image* ip_quantize_simple (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented 5.\n";
-    return NULL;
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    for (int w=0; w<width; w++){
+        for (int h=0;h<height; h++){
+            double r = src->getPixel(w, h, 0);
+            double g = src->getPixel(w, h, 1);
+            double b = src->getPixel(w, h, 2);
+            double rp = bitRound(r, bitsPerChannel);
+            double gp = bitRound(g, bitsPerChannel);
+            double bp = bitRound(b, bitsPerChannel);
+            dest->setPixel_(w, h, 0, rp);
+            dest->setPixel_(w, h, 1, gp);
+            dest->setPixel_(w, h, 2, bp);
+        }
+    }
+    return dest;
 }
 
 
@@ -432,6 +519,21 @@ Image* ip_quantize_simple (Image* src, int bitsPerChannel)
  * dither each pixel to the nearest value in the new number of bits
  * using a static 2x2 matrix
  */
+
+//round a number to the closest number that can be represented by a 2x2 block.
+double blockRound(double number, int bit){
+    int levels = 4*(-1+pow(2,bit))+1;
+    double grid = 1.0/double(levels-1);
+    double val;
+    for (double cur=0.0; cur<=1.0; cur+=grid){
+        if (cur >= 1.0 || fabs(cur-number)<fabs(cur+grid-number)) {
+            val = cur;
+            break;
+        }
+    }
+    return val;
+}
+
 Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
 {
     cerr << "This filter has not been implemented 6.\n";
@@ -623,22 +725,28 @@ Image* ip_scale (Image* src, double xFac, double yFac, int mode,
 {
     int width = src->getWidth();
     int height = src->getHeight();
-    int newWidth = width * xFac;
-    int newHeight = height * yFac;
-    Image* dest = new Image(newWidth,newHeight);
-    for(int w=0; w<newWidth; w++){
-        for(int h=0; h<newHeight;h++){
-            double xx = w/(double)xFac;
-            double yy = h/(double)yFac;
+    Image* dest = new Image(width*xFac,height*yFac);
+    // initialize as all black
+    for (int w=0; w<width*xFac; w++){
+        for (int h=0;h<height*yFac; h++){
+            // rescaling
+            int new_x = w * 1.0 / xFac;
+            int new_y = h * 1.0 / yFac;
+            // resemble
             Pixel pix;
-            if (mode == I_NEAREST) {
-                pix = ip_resample_nearest(src, xx, yy);
-            } else if (mode == I_BILINEAR) {
-                pix = ip_resample_bilinear(src, xx, yy);
+            if (new_x < 0 || new_x >= width || new_y < 0 || new_y >= height) {
+                pix = Pixel(0, 0, 0);
             } else {
-                pix = ip_resample_gaussian(src, xx, yy, size, sigma);
+                if (mode == I_NEAREST) {
+                    pix = ip_resample_nearest(src, new_x, new_y);
+                } else if (mode == I_BILINEAR) {
+                    pix = ip_resample_bilinear(src, new_x, new_y);
+                } else {
+                    pix = ip_resample_gaussian(src, new_x, new_y, size, sigma);
+                }
             }
-            dest->setPixel(w,h,pix);
+            
+            dest->setPixel_(w, h, pix);
         }
     }
     return dest;
