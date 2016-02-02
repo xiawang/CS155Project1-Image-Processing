@@ -579,8 +579,86 @@ Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
  */
 Image* ip_quantize_fs (Image* src, int bitsPerChannel)
 {
-    cerr << "This filter has not been implemented 7.\n";
-    return NULL;
+    // floyd-steinberg factors
+    float alpha = 7.0 / 16.0;
+    float beta = 3.0 / 16.0;
+    float chi = 5.0 / 16.0;
+    float delta = 1.0 / 16.0;
+    
+    int width = src->getWidth();
+    int height = src->getHeight();
+    Image* dest = new Image(width,height);
+    
+    // construct and initialize error float matrix
+    float e_matrix[height][width][3];
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            e_matrix[i][j][0] = 0.0;
+            e_matrix[i][j][1] = 0.0;
+            e_matrix[i][j][2] = 0.0;
+        }
+    }
+    
+    for (int h=0;h<height; h++){
+        for (int w=0; w<width; w++){
+            // read in errors
+            float error_r = e_matrix[h][w][0];
+            float error_g = e_matrix[h][w][1];
+            float error_b = e_matrix[h][w][2];
+            
+            double r = src->getPixel(w, h, 0);
+            double g = src->getPixel(w, h, 1);
+            double b = src->getPixel(w, h, 2);
+            double nr = floor(r+error_r+0.5) / (bitsPerChannel-1);
+            double ng = floor(g+error_g+0.5) / (bitsPerChannel-1);
+            double nb = floor(b+error_b+0.5) / (bitsPerChannel-1);
+            dest->setPixel_(w, h, 0, nr);
+            dest->setPixel_(w, h, 1, ng);
+            dest->setPixel_(w, h, 2, nb);
+            
+            // store errors
+            double cur_error_r = nr - r;
+            double cur_error_g = ng - g;
+            double cur_error_b = nb - b;
+            
+            // alpha
+            if (w == width-1) {  // right most corner
+                // do nothing
+            } else {
+                e_matrix[h][w][0] += alpha*cur_error_r;
+                e_matrix[h][w][1] += alpha*cur_error_g;
+                e_matrix[h][w][2] += alpha*cur_error_b;
+            }
+            
+            // beta
+            if (w == 0 || h == height-1) {  // lower left most corner
+                // do nothing
+            } else {
+                e_matrix[h][w][0] += beta*cur_error_r;
+                e_matrix[h][w][1] += beta*cur_error_g;
+                e_matrix[h][w][2] += beta*cur_error_b;
+            }
+            
+            // chi
+            if (h == height-1) {  // bottom line
+                // do nothing
+            } else {
+                e_matrix[h][w][0] += chi*cur_error_r;
+                e_matrix[h][w][1] += chi*cur_error_g;
+                e_matrix[h][w][2] += chi*cur_error_b;
+            }
+            
+            // delta
+            if (w == width-1 || h == height-1) {  // lower right most corner
+                // do nothing
+            } else {
+                e_matrix[h][w][0] += delta*cur_error_r;
+                e_matrix[h][w][1] += delta*cur_error_g;
+                e_matrix[h][w][2] += delta*cur_error_b;
+            }
+        }
+    }
+    return dest;
 }
 
 /* helper functions you may find useful for resampling */
