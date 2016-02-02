@@ -538,19 +538,21 @@ Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
 {
     int width = src->getWidth();
     int height = src->getHeight();
-    int levels = 4*(-1+pow(2,bitsPerChannel))+1;
+    int levels = pow(2,bitsPerChannel);
     double grid = 1.0/double(levels-1);
     double offset0 = grid*3.0/8.0;
     double offset1 = grid*1.0/8.0;
     double offset2 = -grid*1.0/8.0;
     double offset3 = -grid*3.0/8.0;
+    cout << offset0 <<endl;
+    cout << offset0 <<endl;
     Image* dest = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
             double r = src->getPixel(w, h, 0);
             double g = src->getPixel(w, h, 1);
             double b = src->getPixel(w, h, 2);
-            if (w%2==0 && h%2 ==0){
+            if (w%2==0 && h%2 ==1){
                 r += offset0; g += offset0; b += offset0;
             }else if(w%2==1 && h%2 ==0){
                 r += offset1; g += offset1; b += offset1;
