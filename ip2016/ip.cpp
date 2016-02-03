@@ -554,8 +554,6 @@ Image* ip_quantize_ordered (Image* src, int bitsPerChannel)
     double offset1 = grid*1.0/8.0;
     double offset2 = -grid*1.0/8.0;
     double offset3 = -grid*3.0/8.0;
-    cout << offset0 <<endl;
-    cout << offset0 <<endl;
     Image* dest = new Image(width,height);
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
@@ -619,9 +617,9 @@ Image* ip_quantize_fs (Image* src, int bitsPerChannel)
             double r = src->getPixel(w, h, 0);
             double g = src->getPixel(w, h, 1);
             double b = src->getPixel(w, h, 2);
-            double nr = floor(r+error_r+0.5) / (bitsPerChannel-1);
-            double ng = floor(g+error_g+0.5) / (bitsPerChannel-1);
-            double nb = floor(b+error_b+0.5) / (bitsPerChannel-1);
+            double nr = blockRound(r+error_r,bitsPerChannel);
+            double ng = blockRound(g+error_g,bitsPerChannel);
+            double nb = blockRound(b+error_b,bitsPerChannel);
             dest->setPixel_(w, h, 0, nr);
             dest->setPixel_(w, h, 1, ng);
             dest->setPixel_(w, h, 2, nb);
