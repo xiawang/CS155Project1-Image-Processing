@@ -44,7 +44,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/Users/WangXiaotian/Desktop/CS155Labs/ip2016skeleton"
+      customWorkingDirectory = "/Users/WangXiaotian/Desktop/CS155Labs/CS155Project1-Image-Processing"
       buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
