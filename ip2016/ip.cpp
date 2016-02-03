@@ -753,7 +753,7 @@ Pixel ip_resample_gaussian(Image* src, double x, double y, int size, double sigm
     int width = src->getWidth();
     int height = src->getHeight();
     double **kernel = new double*[size];
-    for (int x=0; x<3; x++){
+    for (int x=0; x<size; x++){
         kernel[x] = new double[size];
     }
     int x0 = floor(x)-(size/2-1); int y0 = floor(y)-(size/2-1);
