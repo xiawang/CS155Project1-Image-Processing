@@ -421,7 +421,7 @@ Image* ip_invert (Image* src)
 /*
  * median filter
  */
-Image* ip_median (Image* src)
+Image*  ip_median(Image* src, int n)
 {
     int width = src->getWidth();
     int height = src->getHeight();

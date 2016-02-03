@@ -47,6 +47,7 @@ Image*	ip_grey (Image* src);
 Image*  ip_image_shift (Image* src, int dx, int dy);
 Image*	ip_invert (Image* src);
 double	ip_kernel_calc(Image* src, int i, int j, int k, double* kernel, int size);
+Image*  ip_median(Image* src, int n);
 Image*	ip_misc(Image* src);
 Image*	ip_noisify (Image* src, double alpha);
 
@@ -59,7 +60,7 @@ double	ip_resample_nearest_channel(Image* src, double x, double y, int channel);
 Pixel	ip_resample_bilinear(Image* src, double x, double y);
 double	ip_resample_bilinear_channel(Image* src, double x, double y, int channel);
 Pixel   ip_resample_gaussian(Image* src, double x, double y, int filtersize, double sigma);
-double   ip_resample_gaussian_channel(Image* src, double x, double y, int channel, int filtersize, double sigma);
+double   ip_resample_gaussian_channel(Image* src, double x, double y,int filtersize, double sigma,  int channel);
 
 
 Image*	ip_rotate (Image* src, double theta, int x, int y, int mode,

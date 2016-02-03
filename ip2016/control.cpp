@@ -35,6 +35,7 @@ enum {
     M_PROCESS_IMAGE_SHIFT=18,
     M_PROCESS_INVERT=19,
     M_PROCESS_INTERPOLATE=32,
+    M_PROCESS_MEDIAN=35,
     M_PROCESS_MISC=20,
     M_PROCESS_QUANTIZE_SIMPLE=21,
     M_PROCESS_QUANTIZE_ORDERED=22,
@@ -101,6 +102,7 @@ int make_menu ()
     glutAddMenuEntry( "Image shift", M_PROCESS_IMAGE_SHIFT);
     glutAddMenuEntry( "Interpolate/Extrapolate...", M_PROCESS_INTERPOLATE);
     glutAddMenuEntry( "Invert",		M_PROCESS_INVERT);
+    glutAddMenuEntry( "Median", M_PROCESS_MEDIAN);
     glutAddMenuEntry( "Misc. effects...", M_PROCESS_MISC);
     glutAddSubMenu(   "Quantize",		quantize);
     glutAddMenuEntry( "Saturate...",	M_PROCESS_SATURATE);
@@ -429,6 +431,17 @@ void process_func (int value)
         case M_PROCESS_INVERT:  // enum #19
             resultImage = ip_invert(currentImage);
             break;
+            
+            
+        case M_PROCESS_MEDIAN: // enum #53
+            
+        {
+            int filterSize = getFilterSize();
+            if (filterSize>0)
+                resultImage = ip_median(currentImage, filterSize);
+            break;
+        }
+            
             
         case M_PROCESS_MISC: // enum #20
             resultImage = ip_misc(currentImage);
@@ -761,9 +774,14 @@ int getFilterSize()
         cerr << "Sorry, the filter size must be a positive, odd integer." << endl;
         filtersize=0;
     }
+    if (filtersize > currentImage->getWidth()/2 || filtersize > currentImage->getHeight()/2) {
+        cerr << "Sorry, that is too big!" << endl;
+        filtersize=0;
+    }
     checkStream(cin);
     return filtersize;
 }
+
 double getDouble(const char* message)
 {
     double value;
