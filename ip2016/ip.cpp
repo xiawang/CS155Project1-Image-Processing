@@ -197,8 +197,18 @@ Image* ip_composite(Image* src1, Image* src2, Image* mask)
  */
 Image* ip_crop (Image* src, int x0, int y0, int x1, int y1)
 {
-    cerr << "This filter has not been implemented 2.\n";
-    return NULL;
+    Image* dest = new Image((x1-x0),(y1-y0));
+    for (int w=x0; w<x1; w++){
+        for (int h=y0;h<y1; h++){
+            double r = src->getPixel(w, h, 0);
+            double g = src->getPixel(w, h, 1);
+            double b = src->getPixel(w, h, 2);
+            dest->setPixel_(w-x0, h-y0, 0, r);
+            dest->setPixel_(w-x0, h-y0, 1, g);
+            dest->setPixel_(w-x0, h-y0, 2, b);
+        }
+    }
+    return dest;
 }
 
 
