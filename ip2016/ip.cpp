@@ -168,26 +168,53 @@ Image* ip_composite(Image* src1, Image* src2, Image* mask)
 {
     int width = src1->getWidth();
     int height = src1->getHeight();
-    Image* dest = new Image(width,height);
+    int width1 = src2->getWidth();
+    int height1 = src2->getHeight();
+    int width2 = mask->getWidth();
+    int height2 = mask->getHeight();
+    cout << "src1_w: " << width << " src1_h: " << height << endl;
+    cout << "src2_w: " << width1 << " src2_h: " << height1 << endl;
+    cout << "mask_w: " << width2 << " mask_h: " << height2 << endl;
+    Image* dest = new Image(width1,height1);
+    // background layer
+    for (int w=0; w<width1; w++){
+        for (int h=0;h<height1; h++){
+            double r2 = src2->getPixel(w, h, 0);
+            double g2 = src2->getPixel(w, h, 1);
+            double b2 = src2->getPixel(w, h, 2);
+            dest->setPixel_(w, h, 0, r2);
+            dest->setPixel_(w, h, 1, g2);
+            dest->setPixel_(w, h, 2, b2);
+        }
+    }
+    // face layer
+    int x;
+    int y;
+    cout << "face_x: " << endl;
+    cin >> x;
+    cout << "face_y: " << endl;
+    cin >> y;
+    
     for (int w=0; w<width; w++){
         for (int h=0;h<height; h++){
             double r1 = src1->getPixel(w, h, 0);
             double g1 = src1->getPixel(w, h, 1);
             double b1 = src1->getPixel(w, h, 2);
-            double r2 = src2->getPixel(w, h, 0);
-            double g2 = src2->getPixel(w, h, 1);
-            double b2 = src2->getPixel(w, h, 2);
+            double r2 = src2->getPixel(w+x, h+y, 0);
+            double g2 = src2->getPixel(w+x, h+y, 1);
+            double b2 = src2->getPixel(w+x, h+y, 2);
             double alpha_r = mask->getPixel(w, h, 0);
             double alpha_g = mask->getPixel(w, h, 1);
             double alpha_b = mask->getPixel(w, h, 2);
             double rd = alpha_r*r1 + (1-alpha_r)*r2;
             double gd = alpha_g*g1 + (1-alpha_g)*g2;
             double bd = alpha_b*b1 + (1-alpha_b)*b2;
-            dest->setPixel_(w, h, 0, rd);
-            dest->setPixel_(w, h, 1, gd);
-            dest->setPixel_(w, h, 2, bd);
+            dest->setPixel_(w+x, h+y, 0, rd);
+            dest->setPixel_(w+x, h+y, 1, gd);
+            dest->setPixel_(w+x, h+y, 2, bd);
         }
     }
+
     return dest;
 }
 
